@@ -1,0 +1,44 @@
+# Supervisor tree for gen_event
+
+
+### Usage
+
+Start new supervisor tree for event manager `Name` with predefined handlers:
+
+```
+event_sup:start_link(Name, Handlers).
+where
+Name :: atom(),
+Handlers :: [{Handler, Args}], 
+Handler :: module() | {module(), term()},
+Args :: [term()].
+``` 
+
+This function starts tree:
+
+```
+<Name>_sup / supervisor
+ |
+ --- Name event_manager
+ |
+ --- <Name>_guard_sup / supervisor
+      |
+      --- event_guard / gen_server
+          |
+          -- linked handler
+      |
+      --- event_guard / gen_server
+          |
+          -- linked handler
+```
+
+`event_guard' - gen_server, created for each handler, which is catching `gen_event_EXIT` signals.
+When handler crashes - supervisor restart gen_server and handler.
+
+`event_sup:add_sup_handler(Name, Handler, Args)` - add new handler to specified supervised event manager.
+
+### TODO
+
+- Different restart strategies for handlers
+- Support for stopping and replacing handlers
+
